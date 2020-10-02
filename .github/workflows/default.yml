@@ -18,11 +18,26 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Preliminaries
+      run: |
+        git config pull.ff only
+        cat /proc/cpuinfo
+
     - name: Generate Dockerfile
       run: ./generate-Dockerfile.sh
 
     - name: Build Image
-      run: docker build -t gpu-jupyter .build/  # will take a while
+      run: docker build -t gupyter/datascience-notebook .build/  # will take a while
 
     - name: Quickstart Entrypoint Script
       run: ./start-local.sh -p 8848 
+
+    -
+      name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: gupyter
+        password: ${{ secrets.DOCKER_PASS }}
+
+    - name: Push to Dockerhub
+      run: docker push gupyter/datascience-notebook
